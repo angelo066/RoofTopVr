@@ -43,7 +43,7 @@ public class Planta : MonoBehaviour
     GameObject calentador;
 
     //Para que sepamos si el calentador/humificador tienen que funcionar o no
-    bool enInvernadero = true;
+    bool enInvernadero = false;
 
     private void Update()
     {
@@ -54,11 +54,17 @@ public class Planta : MonoBehaviour
         if (enInvernadero)
         {
             temperatura_Actual = temperaturaTerraza + (potenciaCalentador - (int)DistRad.magnitude);
+            Debug.Log("Cama dentro");
         }
+        else Debug.Log("Cama fuera");
+
     }
 
     private void Start()
     {
         calentador = GameObject.FindGameObjectWithTag("Calentador");
     }
+
+    //Si esta dentro del invernadero y sale, lo saca, y viceversa.
+    public void invernadero() { enInvernadero = !enInvernadero; }
 }
