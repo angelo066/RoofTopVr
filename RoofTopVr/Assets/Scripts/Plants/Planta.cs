@@ -31,7 +31,7 @@ public class Planta : MonoBehaviour
 
     //El agua que tiene ahora mismo la maceta, no lo hago en otro script, porque lo unico que tendría sería esta variable, y 
     //Como no vamos a poder tener plantas sin maceta, es irrelevante,
-    private int aguaEnMaceta = 0;
+    private int aguaEnTierra = 0;
 
     //Los rangos OPTIMOS de la planta en estos tres aspectos (Son arrays de dos porque C# no tiene pair)
     //  ***** IMPORTATE : El elemento 0 es el MINIMO y el elemento 1 es el MÁXIMO *****
@@ -50,14 +50,29 @@ public class Planta : MonoBehaviour
         //Como de lejos estamos del radiador
         Vector3 DistRad = transform.position - calentador.transform.position;
 
+        CalculaTemperatura(DistRad);
+
+        //Hay que añadir que todavía pueda chupar agua como condición
+        if(aguaEnTierra > 0)
+        {
+            agua_Actual += aguaEnTierra;
+
+        }
+
+        //Esto es para debugear
+        if (Input.GetKeyDown("space"))
+        {
+            regada(10);
+        }
+    }
+
+    private void CalculaTemperatura(Vector3 DistRad)
+    {
         //Si esta en el invernadero le subimos la temperatura en funcion a como de cerca esta del calentador (MAXIMA = temperatura_Actual, ahora mismo 20, + potenciaCalentador)
         if (enInvernadero)
         {
             temperatura_Actual = temperaturaTerraza + (potenciaCalentador - (int)DistRad.magnitude);
-            Debug.Log("Cama dentro");
         }
-        else Debug.Log("Cama fuera");
-
     }
 
     private void Start()
@@ -67,4 +82,11 @@ public class Planta : MonoBehaviour
 
     //Si esta dentro del invernadero y sale, lo saca, y viceversa.
     public void invernadero() { enInvernadero = !enInvernadero; }
+
+    //A este método hay que llamarlo cuando impacten las párticulas de agua
+    public void regada(int cantidad)
+    {
+        aguaEnTierra += cantidad;
+        Debug.Log(aguaEnTierra);
+    }
 }
