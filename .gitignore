@@ -58,3 +58,11 @@ sysinfo.txt
 # Crashlytics generated file
 crashlytics-build.properties
 
+
+RoofTopVr/Library/
+
+RoofTopVr/Logs/
+
+RoofTopVr/obj/Debug/
+
+RoofTopVr/Temp/
