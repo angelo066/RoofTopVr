@@ -14,6 +14,9 @@ public class Planta : MonoBehaviour
 
     //Representa la planta que es
     public tipo tipo_;
+
+    //Tanto la retencion como la resistencia se representan como porcentaje
+
     //Representa como de dificil es para la planta PERDER agua
     public int retencion;
 
@@ -84,9 +87,25 @@ public class Planta : MonoBehaviour
     public void invernadero() { enInvernadero = !enInvernadero; }
 
     //A este método hay que llamarlo cuando impacten las párticulas de agua
+    //Añadir lo que se quita por la resistencia
     public void regada(int cantidad)
     {
+        //El agua que la planta se resiste a coger
+        int agua_Perdida = (cantidad * resistencia) / 100;
+
+        //La tierra absorbe el agua
         aguaEnTierra += cantidad;
+
+        //El agua que absorbe la planta
+        int agua_Absorbida = aguaEnTierra - agua_Perdida;
+
+        //Le sumamos el agua que absorbe
+        agua_Actual += agua_Absorbida;
+
+        //Le restamos a las tierra el agua que abosorbe la planta
+        aguaEnTierra -= agua_Absorbida;
+
+        Debug.Log(agua_Actual);
         Debug.Log(aguaEnTierra);
     }
 }
