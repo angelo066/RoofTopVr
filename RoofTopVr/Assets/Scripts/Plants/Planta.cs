@@ -2,8 +2,17 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+/// <summary>
+/// Reseteamos humedad y temperatura cuando pasa el dia o lo dejamos igual.
+/// Cuanta agua pierden las plantas al pasar el dia
+/// Mirar lo de la poda
+/// Que diferencias queremos que sean criticas
+/// </summary>
+
+
 //Tipos de plantas que tenemos en el juego (Añadir aqui si se quieren meter mas)
 public enum tipo { Monstera, Violeta, Corona, Tomatera, Anturio, Jade, Peyote };
+public enum Plagas { Ninguna, Aranias, Moscas, Gusanos };
 
 public class Planta : MonoBehaviour
 {
@@ -19,6 +28,8 @@ public class Planta : MonoBehaviour
     //Representa la planta que es
     public tipo tipo_;
 
+    Plagas plag = Plagas.Ninguna;
+
     //Tanto la retencion como la resistencia se representan como porcentaje
 
     //Representa como de dificil es para la planta PERDER agua
@@ -26,6 +37,9 @@ public class Planta : MonoBehaviour
 
     //Representa como de dificil es para la planta COGER agua de la maceta
     public int resistencia;
+
+    //Nivel 1,2 y 3 de como de mal esta la planta respecto a sus rangos ideales.
+    public int[] diferencias;
 
     //A que temperatura esta ahora mismpo la planta
     private int temperatura_Actual = temperaturaTerraza;        //En grados centigrados
@@ -151,4 +165,82 @@ public class Planta : MonoBehaviour
 
     void resetTemperatura() { temperatura_Actual = temperaturaTerraza; }
     void resetHumedad() { humedad_Actual = humedadTerraza + humedadAcumulada; }
+
+    void finDelDia()
+    {
+        //Comprobar los valores actuales con los rangos ideales
+
+        estadoHumedad();
+
+        estadoTemperatura();
+
+        if (agua_Actual <= rangoAgua[1] && agua_Actual >= rangoAgua[0])
+        {
+            //Tamos gucci, la planta crece
+        }
+        else
+        {
+            int diferencia = agua_Actual - rangoAgua[1];
+
+            calculaDiferencia(diferencia);
+        }
+
+    }
+
+    private void estadoTemperatura()
+    {
+        if (temperatura_Actual <= rangoTemperatura[1] && temperatura_Actual >= rangoTemperatura[0])
+        {
+            //Tamos gucci, la planta crece
+        }
+        else
+        {
+            int diferencia = temperatura_Actual - rangoTemperatura[1];
+
+            calculaDiferencia(diferencia);
+        }
+    }
+
+    private void estadoHumedad()
+    {
+        if (humedad_Actual <= rangoHumedad[1] && humedad_Actual >= rangoHumedad[0])
+        {
+            //Tamos gucci, la planta crece
+        }
+        else
+        {
+            int diferencia = humedad_Actual - rangoHumedad[1];
+
+            calculaDiferencia(diferencia);
+        }
+    }
+
+    private void calculaDiferencia(int diferencia)
+    {
+        //Que buen código
+        if (diferencia >= diferencias[2])
+        {
+            //Mega húmeda, lo que le pase
+        }
+        else if (diferencia >= diferencias[1])
+        {
+            //Bastante húmeda, lo que le pase
+        }
+        else if (diferencia >= diferencias[0])
+        {
+            //Se pasa un poquito, lo que le pase
+        }//La diferencia es negativa
+        else if (diferencia < -diferencias[2])
+        {
+            //Mega seca, lo que le pase
+        }
+        else if (diferencia < -diferencias[1])
+        {
+            //Bastante seca, lo que le pase
+        }
+        else //No quedan más opciones
+        {
+            //Un poquito seca, lo que le pase
+        }
+    }
 }
