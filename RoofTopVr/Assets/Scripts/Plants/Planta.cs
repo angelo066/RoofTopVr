@@ -39,7 +39,9 @@ public class Planta : MonoBehaviour
     public int resistencia;
 
     //Nivel 1,2 y 3 de como de mal esta la planta respecto a sus rangos ideales.
-    public int[] diferencias;
+    public int[] diferenciasHumedad;
+    public int[] diferenciasAgua;
+    public int[] diferenciasTemperatura;
 
     //A que temperatura esta ahora mismpo la planta
     private int temperatura_Actual = temperaturaTerraza;        //En grados centigrados
@@ -174,6 +176,12 @@ public class Planta : MonoBehaviour
 
         estadoTemperatura();
 
+        estadoAgua();
+
+    }
+
+    private void estadoAgua()
+    {
         if (agua_Actual <= rangoAgua[1] && agua_Actual >= rangoAgua[0])
         {
             //Tamos gucci, la planta crece
@@ -182,9 +190,8 @@ public class Planta : MonoBehaviour
         {
             int diferencia = agua_Actual - rangoAgua[1];
 
-            calculaDiferencia(diferencia);
+            calculaDiferencia(diferencia, diferenciasAgua);
         }
-
     }
 
     private void estadoTemperatura()
@@ -197,7 +204,7 @@ public class Planta : MonoBehaviour
         {
             int diferencia = temperatura_Actual - rangoTemperatura[1];
 
-            calculaDiferencia(diferencia);
+            calculaDiferencia(diferencia, diferenciasTemperatura);
         }
     }
 
@@ -211,11 +218,11 @@ public class Planta : MonoBehaviour
         {
             int diferencia = humedad_Actual - rangoHumedad[1];
 
-            calculaDiferencia(diferencia);
+            calculaDiferencia(diferencia, diferenciasHumedad);
         }
     }
 
-    private void calculaDiferencia(int diferencia)
+    private void calculaDiferencia(int diferencia, int[] diferencias)
     {
         //Que buen código
         if (diferencia >= diferencias[2])
