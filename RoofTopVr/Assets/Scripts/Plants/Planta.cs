@@ -13,6 +13,7 @@ using UnityEngine;
 //Tipos de plantas que tenemos en el juego (Añadir aqui si se quieren meter mas)
 public enum tipo { Monstera, Violeta, Corona, Tomatera, Anturio, Jade, Peyote };
 public enum Plagas { Ninguna, Aranias, Moscas, Gusanos };
+public enum Luz { Directa, Indirecta, Penumbra };
 
 public class Planta : MonoBehaviour
 {
@@ -25,10 +26,14 @@ public class Planta : MonoBehaviour
 
     private const int humedadTerraza = 10;     //La humedad que haría en la terraza
 
+    private const Luz luzTerraza = Luz.Directa;
+
     //Representa la planta que es
     public tipo tipo_;
 
     Plagas plag = Plagas.Ninguna;
+
+    Luz l = luzTerraza;
 
     //Tanto la retencion como la resistencia se representan como porcentaje
 
@@ -80,8 +85,6 @@ public class Planta : MonoBehaviour
         CalculaTemperatura();
 
         CalculaHumedad();
-
-        Debug.Log(humedad_Actual);
 
         //Esto es para debugear
         if (Input.GetKeyDown("space"))
@@ -153,10 +156,9 @@ public class Planta : MonoBehaviour
 
         //Le restamos a las tierra el agua que abosorbe la planta
         aguaEnTierra -= agua_Absorbida;
-
-        Debug.Log(agua_Actual);
-        Debug.Log(aguaEnTierra);
     }
+
+    public void setLuz(Luz nL) { l = nL; }
 
     //Llamarlo cuando impacten las particulas del flusflus
     public void flusflus(int cantidad)
@@ -250,4 +252,5 @@ public class Planta : MonoBehaviour
             //Un poquito seca, lo que le pase
         }
     }
+
 }
