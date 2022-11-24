@@ -18,18 +18,16 @@ public enum Luz { Directa, Indirecta, Penumbra };
 
 public class Planta : MonoBehaviour
 {
-    //Cuanto calienta el radiador, si se modifica aqui se modifica en todas
-    private const int potenciaCalentador = 20;
-
-    private const int potenciaHumidificador = 20;
-
-    private const int temperaturaTerraza = 21;     //La temperatura que haría en la terraza
-
-    private const int humedadTerraza = 10;     //La humedad que haría en la terraza
-
     private const Luz luzTerraza = Luz.Directa;
 
-    private const int aguaPerdidaPorDia = 10;
+    private int potenciaHumidificador = 20;
+
+    //Cuanto calienta el radiador, si se modifica aqui se modifica en todas
+    private int potenciaCalentador = 20;
+
+    private int humedadTerraza = 10;     //La humedad que haría en la terraza
+
+    private int temperaturaTerraza = 21;     //La temperatura que haría en la terraza
 
     //Representa la planta que es
     public tipo tipo_;
@@ -54,10 +52,10 @@ public class Planta : MonoBehaviour
     public int[] diferenciasLuz;
 
     //A que temperatura esta ahora mismpo la planta
-    private int temperatura_Actual = temperaturaTerraza;        //En grados centigrados
+    private int temperatura_Actual;        //En grados centigrados
 
     //Como de humedad esta ahora mismo la planta
-    private int humedad_Actual = humedadTerraza;                 //Puede ser que estas inicializaciones haya que cambiarlas más tarde (Son los valores con los que empiezan las plantas)
+    private int humedad_Actual;                 //Puede ser que estas inicializaciones haya que cambiarlas más tarde (Son los valores con los que empiezan las plantas)
 
     //Cuanta agua tiene la planta ahora mismo
     private int agua_Actual = 0;
@@ -118,6 +116,8 @@ public class Planta : MonoBehaviour
     {
         calentador = GameObject.FindGameObjectWithTag("Calentador");
         humidificador = GameObject.FindGameObjectWithTag("Humificador");
+        temperatura_Actual = temperaturaTerraza;
+        humedad_Actual = humedadTerraza;
     }
 
     //Para el humidificador
@@ -171,6 +171,8 @@ public class Planta : MonoBehaviour
         aguaEnTierra += cantidad;
     }
 
+    public void setRadiador(int cantidad) { potenciaCalentador = cantidad; }
+
     public void calculoAgua()
     {
         //El agua que la planta se resiste a coger
@@ -223,6 +225,7 @@ public class Planta : MonoBehaviour
         estadoTemperatura();
 
         estadoLuz();
+
     }
 
     //Cálculos de fin del día
