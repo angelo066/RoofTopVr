@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -28,11 +29,14 @@ public class Planta : MonoBehaviour
 
     private const Luz luzTerraza = Luz.Directa;
 
+    private const int aguaPerdidaPorDia = 10;
+
     //Representa la planta que es
     public tipo tipo_;
 
     Plagas plag = Plagas.Ninguna;
 
+    //Luz actual
     Luz l = luzTerraza;
 
     //Tanto la retencion como la resistencia se representan como porcentaje
@@ -43,10 +47,11 @@ public class Planta : MonoBehaviour
     //Representa como de dificil es para la planta COGER agua de la maceta
     public int resistencia;
 
-    //Nivel 1,2 y 3 de como de mal esta la planta respecto a sus rangos ideales.
+    //Nivel 1,2 y 3 de como de mal esta la planta respecto a sus rangos ideales. (Pueden ser negativas)
     public int[] diferenciasHumedad;
     public int[] diferenciasAgua;
     public int[] diferenciasTemperatura;
+    public int[] diferenciasLuz;
 
     //A que temperatura esta ahora mismpo la planta
     private int temperatura_Actual = temperaturaTerraza;        //En grados centigrados
@@ -66,9 +71,12 @@ public class Planta : MonoBehaviour
 
     //Los rangos OPTIMOS de la planta en estos tres aspectos (Son arrays de dos porque C# no tiene pair)
     //  ***** IMPORTATE : El elemento 0 es el MINIMO y el elemento 1 es el MÁXIMO *****
+    //SOLO SON POSITIVAS
     public int[] rangoTemperatura = new int[2];
     public int[] rangoHumedad = new int[2];
     public int[] rangoAgua = new int[2];
+
+    public Luz perfectLight;
 
     //Será el objeto de la escena 
     GameObject calentador;
@@ -78,24 +86,32 @@ public class Planta : MonoBehaviour
     //Para que sepamos si el calentador/humificador tienen que funcionar o no
     bool enInvernadero = false;
 
+    //empieza sana
+    private int salud_Agua = 0;
+    private int salud_Temperatura = 0;
+    private int salud_Humedad = 0;
+    private int salud_Luz = 0;
+
     private void Update()
     {
-
-
-        CalculaTemperatura();
-
-        CalculaHumedad();
 
         //Esto es para debugear
         if (Input.GetKeyDown("space"))
         {
             regada(10);
+            Debug.Log("Regada");
         }
 
         //Esto es para debugear
         if (Input.GetKeyDown(KeyCode.F))
         {
             flusflus(1);
+        }
+
+        //Esto es para debugear
+        if (Input.GetKeyDown(KeyCode.Z))
+        {
+            finDelDia();
         }
     }
     private void Start()
@@ -104,6 +120,7 @@ public class Planta : MonoBehaviour
         humidificador = GameObject.FindGameObjectWithTag("Humificador");
     }
 
+    //Para el humidificador
     private void CalculaHumedad()
     {
         if (enInvernadero)
@@ -113,7 +130,7 @@ public class Planta : MonoBehaviour
         }
     }
 
-
+    //Para el radiador
     private void CalculaTemperatura()
     {
         //Si esta en el invernadero le subimos la temperatura en funcion a como de cerca esta del calentador (MAXIMA = temperatura_Actual, ahora mismo 20, + potenciaCalentador)
@@ -125,9 +142,18 @@ public class Planta : MonoBehaviour
         }
     }
 
+    private void CalculaLuz()
+    {
+        if(l != perfectLight)
+        {
+            if (l == Luz.Penumbra) salud_Luz += 10;
+            else salud_Luz += 5;
+        }
+    }
 
     //Si esta dentro del invernadero y sale, lo saca, y viceversa.
-    public void invernadero() { 
+    public void invernadero()
+    {
         enInvernadero = !enInvernadero;
 
         //Si sale del invernadero, lo ponemos a la humedad y temperatura de la terraza.
@@ -142,17 +168,22 @@ public class Planta : MonoBehaviour
     //Añadir lo que se quita por la resistencia
     public void regada(int cantidad)
     {
-        //El agua que la planta se resiste a coger
-        int agua_Perdida = (cantidad * resistencia) / 100;
-
-        //La tierra absorbe el agua
         aguaEnTierra += cantidad;
+    }
+
+    public void calculoAgua()
+    {
+        //El agua que la planta se resiste a coger
+        int agua_NoAbsorbida = (aguaEnTierra * resistencia) / 100;
 
         //El agua que absorbe la planta
-        int agua_Absorbida = aguaEnTierra - agua_Perdida;
+        int agua_Absorbida = aguaEnTierra - agua_NoAbsorbida;
 
         //Le sumamos el agua que absorbe
         agua_Actual += agua_Absorbida;
+                                         
+        //El porcentaje de agua que se queda
+        agua_Actual = (agua_Actual * retencion) / 100; 
 
         //Le restamos a las tierra el agua que abosorbe la planta
         aguaEnTierra -= agua_Absorbida;
@@ -163,8 +194,8 @@ public class Planta : MonoBehaviour
     //Llamarlo cuando impacten las particulas del flusflus
     public void flusflus(int cantidad)
     {
-        humedad_Actual++;
-        humedadAcumulada++;
+        humedad_Actual += cantidad;
+        humedadAcumulada += cantidad;
     }
 
     void resetTemperatura() { temperatura_Actual = temperaturaTerraza; }
@@ -174,14 +205,27 @@ public class Planta : MonoBehaviour
     {
         //Comprobar los valores actuales con los rangos ideales
 
+        //La absorcion de agua
+        calculoAgua();
+
+        //La distancia al humidificador
+        CalculaHumedad();
+
+        //La distancia al radiador
+        CalculaTemperatura();
+
+        CalculaLuz();
+
+        estadoAgua();
+
         estadoHumedad();
 
         estadoTemperatura();
 
-        estadoAgua();
-
+        estadoLuz();
     }
 
+    //Cálculos de fin del día
     private void estadoAgua()
     {
         if (agua_Actual <= rangoAgua[1] && agua_Actual >= rangoAgua[0])
@@ -190,9 +234,43 @@ public class Planta : MonoBehaviour
         }
         else
         {
-            int diferencia = agua_Actual - rangoAgua[1];
+            //Calculamos la difrencia del dia actual
+            int diferencia = 0;
 
-            calculaDiferencia(diferencia, diferenciasAgua);
+            //SI es mayor que la maxima
+            if(agua_Actual > rangoAgua[1]) diferencia = agua_Actual - rangoAgua[1];
+            else diferencia = agua_Actual  - rangoAgua[0]; //Es meor que el minimo
+
+            //Se la añadimos a la diferencia general
+            salud_Agua += diferencia;
+
+            //Comprobamos el estado en funcion de la diferencia
+            int estado = calculaDiferencia(salud_Agua, diferenciasAgua);
+
+            switch (estado)
+            {
+                //Muy seca
+                case -3:
+                    break;
+                // Bastante seca
+                case -2:
+                    break;
+                //Un poco seca
+                case -1:
+                    break;
+                //Te pasas un poco
+                case 1:
+                    break;
+                //Te pasas bastate
+                case 2:
+                    break;
+                //Te pasas mucho
+                case 3:
+                    break;
+
+                default:
+                    break;
+            }
         }
     }
 
@@ -204,9 +282,42 @@ public class Planta : MonoBehaviour
         }
         else
         {
-            int diferencia = temperatura_Actual - rangoTemperatura[1];
+            int diferencia = 0;
 
-            calculaDiferencia(diferencia, diferenciasTemperatura);
+            if (temperatura_Actual > rangoTemperatura[1]) diferencia = temperatura_Actual - rangoTemperatura[1];
+            else diferencia = temperatura_Actual - rangoTemperatura[0]; //Es meor que el minimo
+
+            salud_Temperatura += diferencia;
+
+            int estado = calculaDiferencia(salud_Temperatura, diferenciasAgua);
+
+            switch (estado)
+            {
+                //Muy seca
+                case -3:
+                    break;
+                // Bastante seca
+                case -2:
+                    break;
+                //Un poco seca
+                case -1:
+                    break;
+                //Te pasas un poco
+                case 1:
+                    break;
+                //Te pasas bastate
+                case 2:
+
+                    //Te secas que te cagas
+                    //Material = seca
+                    break;
+                //Te pasas mucho
+                case 3:
+                    break;
+
+                default:
+                    break;
+            }
         }
     }
 
@@ -220,36 +331,110 @@ public class Planta : MonoBehaviour
         {
             int diferencia = humedad_Actual - rangoHumedad[1];
 
-            calculaDiferencia(diferencia, diferenciasHumedad);
+            if (humedad_Actual > rangoHumedad[1]) diferencia = humedad_Actual - rangoHumedad[1];
+            else diferencia = humedad_Actual - rangoHumedad[0]; //Es meor que el minimo
+
+            salud_Humedad += diferencia;
+
+            int estado = calculaDiferencia(salud_Humedad, diferenciasAgua);
+
+            switch (estado)
+            {
+                //Muy seca
+                case -3:
+                    break;
+                // Bastante seca
+                case -2:
+                    break;
+                //Un poco seca
+                case -1:
+                    break;
+                //Te pasas un poco
+                case 1:
+                    break;
+                //Te pasas bastate
+                case 2:
+                    break;
+                //Te pasas mucho
+                case 3:
+                    break;
+
+                default:
+                    break;
+            }
         }
     }
 
-    private void calculaDiferencia(int diferencia, int[] diferencias)
+    private void estadoLuz()
     {
-        //Que buen código
+        if (l == perfectLight)
+        {
+            //Tamos gucci, la planta crece
+        }
+        else
+        {
+            int estado = calculaDiferencia(salud_Luz, diferenciasAgua);
+
+            switch (estado)
+            {
+                //Muy seca
+                case -3:
+                    break;
+                // Bastante seca
+                case -2:
+                    break;
+                //Un poco seca
+                case -1:
+                    break;
+                //Te pasas un poco
+                case 1:
+                    break;
+                //Te pasas bastate
+                case 2:
+                    break;
+                //Te pasas mucho
+                case 3:
+                    break;
+
+                default:
+                    break;
+            }
+        }
+    }
+
+    //Te devuelve en un número el estado de la planta en el atributo que quieras
+    private int calculaDiferencia(int diferencia, int[] diferencias)
+    {
+
         if (diferencia >= diferencias[2])
         {
-            //Mega húmeda, lo que le pase
+            return 3;
+            //Mega húmeda
         }
         else if (diferencia >= diferencias[1])
         {
-            //Bastante húmeda, lo que le pase
+            return 2;
+            //Bastante húmeda
         }
         else if (diferencia >= diferencias[0])
         {
-            //Se pasa un poquito, lo que le pase
+            return 1;
+            //Se pasa un poquito
         }//La diferencia es negativa
         else if (diferencia < -diferencias[2])
         {
-            //Mega seca, lo que le pase
+            return -1;
+            //Mega seca
         }
         else if (diferencia < -diferencias[1])
         {
-            //Bastante seca, lo que le pase
+            return -2;
+            //Bastante seca
         }
         else //No quedan más opciones
         {
-            //Un poquito seca, lo que le pase
+            return -3;
+            //Un poquito seca
         }
     }
 

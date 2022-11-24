@@ -562,13 +562,15 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   tipo_: 0
   retencion: 10
-  resistencia: 10
-  diferenciasHumedad: 
-  diferenciasAgua: 
-  diferenciasTemperatura: 
+  resistencia: 50
+  diferenciasHumedad: 000000000000000000000000
+  diferenciasAgua: 000000000000000000000000
+  diferenciasTemperatura: 000000000000000000000000
+  diferenciasLuz: 0000000000000000
   rangoTemperatura: 140000001f000000
   rangoHumedad: 1400000028000000
   rangoAgua: 0000000000000000
+  perfectLight: 0
 --- !u!54 &828602951
 Rigidbody:
   m_ObjectHideFlags: 0
