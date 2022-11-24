@@ -18,16 +18,18 @@ public enum Luz { Directa, Indirecta, Penumbra };
 
 public class Planta : MonoBehaviour
 {
-    private const Luz luzTerraza = Luz.Directa;
+    GameManager gM;
 
-    private int potenciaHumidificador = 20;
+    Luz luzTerraza;
+
+    int potenciaHumidificador;
 
     //Cuanto calienta el radiador, si se modifica aqui se modifica en todas
-    private int potenciaCalentador = 20;
+    int potenciaCalentador;
 
-    private int humedadTerraza = 10;     //La humedad que haría en la terraza
+    int humedadTerraza;     //La humedad que haría en la terraza
 
-    private int temperaturaTerraza = 21;     //La temperatura que haría en la terraza
+    int temperaturaTerraza;     //La temperatura que haría en la terraza
 
     //Representa la planta que es
     public tipo tipo_;
@@ -35,7 +37,7 @@ public class Planta : MonoBehaviour
     Plagas plag = Plagas.Ninguna;
 
     //Luz actual
-    Luz l = luzTerraza;
+    Luz l;
 
     //Tanto la retencion como la resistencia se representan como porcentaje
 
@@ -112,12 +114,25 @@ public class Planta : MonoBehaviour
             finDelDia();
         }
     }
+
     private void Start()
     {
         calentador = GameObject.FindGameObjectWithTag("Calentador");
         humidificador = GameObject.FindGameObjectWithTag("Humificador");
+
+        gM = GameManager.instance;
+        temperaturaTerraza = gM.temperatura();
+        humedadTerraza = gM.humedad();
+        luzTerraza = gM.luzTerr();
+        potenciaCalentador = gM.rad();
+        potenciaHumidificador = gM.hum();
+
         temperatura_Actual = temperaturaTerraza;
         humedad_Actual = humedadTerraza;
+
+
+        gM.setPlanta(this.gameObject);
+
     }
 
     //Para el humidificador
@@ -203,7 +218,7 @@ public class Planta : MonoBehaviour
     void resetTemperatura() { temperatura_Actual = temperaturaTerraza; }
     void resetHumedad() { humedad_Actual = humedadTerraza + humedadAcumulada; }
 
-    void finDelDia()
+    public void finDelDia()
     {
         //Comprobar los valores actuales con los rangos ideales
 
@@ -226,6 +241,13 @@ public class Planta : MonoBehaviour
 
         estadoLuz();
 
+    }
+    public void setTerraza(int temperatura, int humedad, int rad, int hum)
+    {
+        temperaturaTerraza = temperatura;
+        humedadTerraza = humedad;
+        potenciaCalentador = rad;
+        potenciaHumidificador = hum;
     }
 
     //Cálculos de fin del día
@@ -440,5 +462,7 @@ public class Planta : MonoBehaviour
             //Un poquito seca
         }
     }
+
+    //Método para cuando cambian las condiciones de la terraza
 
 }
