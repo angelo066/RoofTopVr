@@ -3,7 +3,12 @@ guid: 999544484aae9c847b211a78da12f18b
 ModelImporter:
   serializedVersion: 21300
   internalIDToNameTable: []
-  externalObjects: {}
+  externalObjects:
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Muerta.006
+    second: {fileID: 2100000, guid: 424d3f213cf0dac46904eaa916d980c1, type: 2}
   materials:
     materialImportMode: 2
     materialName: 0
