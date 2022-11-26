@@ -92,6 +92,45 @@ public class Planta : MonoBehaviour
     private int salud_Humedad = 0;
     private int salud_Luz = 0;
 
+
+    //Componentes para graficos
+    GameObject planta;
+    MeshFilter modelo;
+    MeshRenderer render;
+
+    //Materiales para los cambios de estado
+    [SerializeField]
+    Material plantaEstandar;
+    Material plantaMuerta;
+
+    //Prefabs para los cambios de modelo
+    [SerializeField]
+    GameObject pequeña;
+    [SerializeField]
+    GameObject mediana;
+    [SerializeField]
+    GameObject grande;
+    [SerializeField]
+    GameObject pequeñaMuerta;
+    [SerializeField]
+    GameObject medianaMuerta;
+    [SerializeField]
+    GameObject grandeMuerta;
+
+    //Colores 
+    [SerializeField]
+    Color verde;
+    [SerializeField]
+    Color amarillo;
+    [SerializeField]
+    Color mas_amarillo;
+    [SerializeField]
+    Color verde_oscuro;
+    [SerializeField]
+    Color mas_verde_oscuro;
+
+
+
     private void Update()
     {
 
@@ -113,10 +152,21 @@ public class Planta : MonoBehaviour
         {
             finDelDia();
         }
+
+        //Esto es para debugear
+        if (Input.GetKeyDown(KeyCode.R))
+        {
+            render.material.SetColor("Color", amarillo);
+        }
     }
 
     private void Start()
     {
+        planta = transform.GetChild(3).gameObject;
+        modelo = planta.GetComponent<MeshFilter>();
+        render = planta.GetComponent<MeshRenderer>();
+        
+
         calentador = GameObject.FindGameObjectWithTag("Calentador");
         humidificador = GameObject.FindGameObjectWithTag("Humificador");
 
@@ -367,6 +417,7 @@ public class Planta : MonoBehaviour
             {
                 //Muy seca
                 case -3:
+                    
                     break;
                 // Bastante seca
                 case -2:
