@@ -280,20 +280,20 @@ public class Planta : MonoBehaviour
 
         CalculaHumedad();
 
-        //CalculaLuz();
+        CalculaLuz();
 
-        //CalculaTemperatura();
+        CalculaTemperatura();
 
-        //calculoAgua();
+        calculoAgua();
 
 
         estadoHumedad();
 
-        //estadoLuz();
+        estadoLuz();
 
-        //estadoTemperatura();
+        estadoTemperatura();
 
-        //estadoAgua();
+        estadoAgua();
     }
     public void setTerraza(int temperatura, int humedad, int rad, int hum)
     {
@@ -473,8 +473,36 @@ public class Planta : MonoBehaviour
         }
         else
         {
-            if(l == Luz.Penumbra) render.material.SetColor("_Color", colorPodrido);
-            else render.material.SetColor("_Color", colorSeco);
+            int estado = calculaDiferencia(salud_Luz, diferenciasLuz);
+
+            switch (estado)
+            {
+                //Muy seca
+                case -3:
+                    render.material.SetColor("_Color", colorMuyPodrido);
+                    break;
+                // Bastante seca
+                case -2:
+                    render.material.SetColor("_Color", colorPodrido);
+                    break;
+                //Un poco seca
+                case -1:
+                    break;
+                //Te pasas un poco
+                case 1:
+                    break;
+                //Te pasas bastate
+                case 2:
+                    render.material.SetColor("_Color", colorSeco);
+                    break;
+                //Te pasas mucho
+                case 3:
+                    render.material.SetColor("_Color", colorMuySeco);
+                    break;
+
+                default:
+                    break;
+            }
         }
     }
 
