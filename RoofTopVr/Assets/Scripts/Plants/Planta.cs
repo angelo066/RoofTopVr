@@ -133,7 +133,8 @@ public class Planta : MonoBehaviour
     [SerializeField]
     Color colorMuyPodrido;
 
-
+    //Si están todas a true la planta crece tras X dias
+    bool[] condiciones = new bool[4];
 
 
     private void Update()
@@ -309,9 +310,11 @@ public class Planta : MonoBehaviour
         if (agua_Actual <= rangoAgua[1] && agua_Actual >= rangoAgua[0])
         {
             //Tamos gucci, la planta crece
+            condiciones[3] = true;
         }
         else
         {
+            condiciones[3] = false;
             //Calculamos la difrencia del dia actual
             int diferencia = 0;
 
@@ -367,9 +370,11 @@ public class Planta : MonoBehaviour
         if (temperatura_Actual <= rangoTemperatura[1] && temperatura_Actual >= rangoTemperatura[0])
         {
             //Tamos gucci, la planta crece
+            condiciones[2] = true;
         }
         else
         {
+            condiciones[2] = false;
             int diferencia = 0;
 
             if (temperatura_Actual > rangoTemperatura[1]) diferencia = temperatura_Actual - rangoTemperatura[1];
@@ -418,12 +423,11 @@ public class Planta : MonoBehaviour
     {
         if (humedad_Actual <= rangoHumedad[1] && humedad_Actual >= rangoHumedad[0])
         {
-            //Tamos gucci, la planta crece
+            condiciones[0] = true;
         }
         else
         {
-            //Debug.Log(humedad_Actual);
-            //Debug.Log(rangoHumedad[1]);
+            condiciones[0] = false;
             int diferencia = humedad_Actual - rangoHumedad[1];
 
             if (humedad_Actual > rangoHumedad[1]) diferencia = humedad_Actual - rangoHumedad[1];
@@ -469,10 +473,12 @@ public class Planta : MonoBehaviour
     {
         if (l == perfectLight)
         {
-            //Tamos gucci, la planta crece
+            condiciones[1] = true;
         }
         else
         {
+            condiciones[1] = false;
+
             int estado = calculaDiferencia(salud_Luz, diferenciasLuz);
 
             switch (estado)
