@@ -443,6 +443,10 @@ public class Planta : MonoBehaviour
                 //Muy seca
                 case -3:
                     render.material.SetColor("_Color", colorMuySeco);
+
+                    if(tipo_ == tipo.Monstera) render.material.SetInt("_Plaga", 1);
+
+
                     break;
                 // Bastante seca
                 case -2:
