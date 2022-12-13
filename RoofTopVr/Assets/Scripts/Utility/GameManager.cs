@@ -29,11 +29,28 @@ public class GameManager : MonoBehaviour
     {
         if (instance == null) instance = this;
         else if (instance != this) Destroy(gameObject);
+
+        //Esto quizas reviente más tarde, esperemos que no
+        plantas = new GameObject[maxPlantas];
     }
 
     private void Start()
     {
-        plantas = new GameObject[maxPlantas];
+
+    }
+
+    private void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.UpArrow))
+        {
+            humedadTerraza++;
+            Debug.Log(humedadTerraza);
+        }
+        if (Input.GetKeyDown(KeyCode.DownArrow))
+        {
+            humedadTerraza--;
+            Debug.Log(humedadTerraza);
+        }
     }
 
     //Luego habrá que instanciar las plantas que toquen, bla bla bla

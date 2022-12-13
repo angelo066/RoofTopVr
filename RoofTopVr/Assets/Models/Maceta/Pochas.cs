@@ -19,7 +19,7 @@ public class Pochas : MonoBehaviour
         {
             // Calculos para generar una planta
             Vector3 dir = -centro.position + posiciones_disponibles[i].position;
-            Debug.Log(dir);
+            //Debug.Log(dir);
 
             // Generar el prefab
             GameObject nueva_pocha = Instantiate(pocha, posiciones_disponibles[i].position, Quaternion.identity);

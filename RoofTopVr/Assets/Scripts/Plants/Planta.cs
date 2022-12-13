@@ -94,13 +94,17 @@ public class Planta : MonoBehaviour
 
 
     //Componentes para graficos
-    GameObject planta;
+    GameObject hojas;
     MeshFilter modelo;
     MeshRenderer render;
 
     //Materiales para los cambios de estado
     [SerializeField]
-    Material plantaEstandar;
+    Material plantaPeq;
+    [SerializeField]
+    Material plantaMed;
+    [SerializeField]
+    Material plantaGrand;
     Material plantaMuerta;
 
     //Prefabs para los cambios de modelo
@@ -121,13 +125,14 @@ public class Planta : MonoBehaviour
     [SerializeField]
     Color verde;
     [SerializeField]
-    Color amarillo;
+    Color colorSeco;
     [SerializeField]
-    Color mas_amarillo;
+    Color colorMuySeco;
     [SerializeField]
-    Color verde_oscuro;
+    Color colorPodrido;
     [SerializeField]
-    Color mas_verde_oscuro;
+    Color colorMuyPodrido;
+
 
 
 
@@ -137,14 +142,16 @@ public class Planta : MonoBehaviour
         //Esto es para debugear
         if (Input.GetKeyDown("space"))
         {
-            regada(10);
-            Debug.Log("Regada");
+            Debug.Log(render.material);
+            render.material.SetColor("_Color", colorMuySeco);
         }
 
+
         //Esto es para debugear
-        if (Input.GetKeyDown(KeyCode.F))
+        if (Input.GetKeyDown(KeyCode.R))
         {
-            flusflus(1);
+            flusflus(-10);
+            Debug.Log(humedad_Actual);
         }
 
         //Esto es para debugear
@@ -152,25 +159,19 @@ public class Planta : MonoBehaviour
         {
             finDelDia();
         }
-
-        //Esto es para debugear
-        if (Input.GetKeyDown(KeyCode.R))
-        {
-            render.material.SetColor("Color", amarillo);
-        }
     }
 
     private void Start()
     {
-        planta = transform.GetChild(3).gameObject;
-        modelo = planta.GetComponent<MeshFilter>();
-        render = planta.GetComponent<MeshRenderer>();
-        
+        gM = GameManager.instance;
 
+        hojas = transform.GetChild(3).gameObject;
+        modelo = hojas.GetComponent<MeshFilter>();
+        render = hojas.GetComponent<MeshRenderer>();
+        
         calentador = GameObject.FindGameObjectWithTag("Calentador");
         humidificador = GameObject.FindGameObjectWithTag("Humificador");
 
-        gM = GameManager.instance;
         temperaturaTerraza = gM.temperatura();
         humedadTerraza = gM.humedad();
         luzTerraza = gM.luzTerr();
@@ -180,8 +181,7 @@ public class Planta : MonoBehaviour
         temperatura_Actual = temperaturaTerraza;
         humedad_Actual = humedadTerraza;
 
-
-        gM.setPlanta(this.gameObject);
+        gM.setPlanta(gameObject);
 
     }
 
@@ -204,6 +204,11 @@ public class Planta : MonoBehaviour
             //Como de lejos estamos del radiador
             Vector3 DistRad = transform.position - calentador.transform.position;
             temperatura_Actual = temperaturaTerraza + (potenciaCalentador - (int)DistRad.magnitude);
+        }
+        else
+        {
+            
+            temperatura_Actual = gM.temperatura();
         }
     }
 
@@ -250,8 +255,9 @@ public class Planta : MonoBehaviour
         agua_Actual += agua_Absorbida;
                                          
         //El porcentaje de agua que se queda
-        agua_Actual = (agua_Actual * retencion) / 100; 
+        int agua_Perdida = (agua_Actual * retencion) / 100;
 
+        agua_Actual = agua_Actual - agua_Perdida;
         //Le restamos a las tierra el agua que abosorbe la planta
         aguaEnTierra -= agua_Absorbida;
     }
@@ -272,25 +278,22 @@ public class Planta : MonoBehaviour
     {
         //Comprobar los valores actuales con los rangos ideales
 
-        //La absorcion de agua
-        calculoAgua();
-
-        //La distancia al humidificador
         CalculaHumedad();
 
-        //La distancia al radiador
-        CalculaTemperatura();
+        //CalculaLuz();
 
-        CalculaLuz();
+        //CalculaTemperatura();
 
-        estadoAgua();
+        //calculoAgua();
+
 
         estadoHumedad();
 
-        estadoTemperatura();
+        //estadoLuz();
 
-        estadoLuz();
+        //estadoTemperatura();
 
+        //estadoAgua();
     }
     public void setTerraza(int temperatura, int humedad, int rad, int hum)
     {
@@ -326,21 +329,31 @@ public class Planta : MonoBehaviour
             {
                 //Muy seca
                 case -3:
+                    render.material.SetColor("_Color", colorMuySeco);
+
                     break;
                 // Bastante seca
                 case -2:
+                    render.material.SetColor("_Color", colorSeco);
+
                     break;
                 //Un poco seca
                 case -1:
+
                     break;
                 //Te pasas un poco
                 case 1:
+
                     break;
                 //Te pasas bastate
                 case 2:
+                    render.material.SetColor("_Color", colorPodrido);
+
                     break;
                 //Te pasas mucho
                 case 3:
+                    render.material.SetColor("_Color", colorMuyPodrido);
+
                     break;
 
                 default:
@@ -364,30 +377,35 @@ public class Planta : MonoBehaviour
 
             salud_Temperatura += diferencia;
 
-            int estado = calculaDiferencia(salud_Temperatura, diferenciasAgua);
+            int estado = calculaDiferencia(salud_Temperatura, diferenciasTemperatura);
 
             switch (estado)
             {
-                //Muy seca
+                //Muy fria
                 case -3:
+                    render.material.SetColor("_Color", colorMuyPodrido);
                     break;
-                // Bastante seca
+                // Bastante fria
                 case -2:
+                    render.material.SetColor("_Color", colorPodrido);
                     break;
-                //Un poco seca
+                //Un poco fria
                 case -1:
+
                     break;
                 //Te pasas un poco
                 case 1:
                     break;
                 //Te pasas bastate
                 case 2:
-
+                    render.material.SetColor("_Color", colorSeco);
                     //Te secas que te cagas
                     //Material = seca
                     break;
                 //Te pasas mucho
                 case 3:
+                    render.material.SetColor("_Color", colorMuySeco);
+
                     break;
 
                 default:
@@ -404,6 +422,8 @@ public class Planta : MonoBehaviour
         }
         else
         {
+            //Debug.Log(humedad_Actual);
+            //Debug.Log(rangoHumedad[1]);
             int diferencia = humedad_Actual - rangoHumedad[1];
 
             if (humedad_Actual > rangoHumedad[1]) diferencia = humedad_Actual - rangoHumedad[1];
@@ -411,16 +431,18 @@ public class Planta : MonoBehaviour
 
             salud_Humedad += diferencia;
 
-            int estado = calculaDiferencia(salud_Humedad, diferenciasAgua);
+            int estado = calculaDiferencia(salud_Humedad, diferenciasHumedad);
+
 
             switch (estado)
             {
                 //Muy seca
                 case -3:
-                    
+                    render.material.SetColor("_Color", colorMuySeco);
                     break;
                 // Bastante seca
                 case -2:
+                    render.material.SetColor("_Color", colorSeco);
                     break;
                 //Un poco seca
                 case -1:
@@ -430,9 +452,11 @@ public class Planta : MonoBehaviour
                     break;
                 //Te pasas bastate
                 case 2:
+                    render.material.SetColor("_Color", colorPodrido);
                     break;
                 //Te pasas mucho
                 case 3:
+                    render.material.SetColor("_Color", colorMuyPodrido);
                     break;
 
                 default:
@@ -449,39 +473,14 @@ public class Planta : MonoBehaviour
         }
         else
         {
-            int estado = calculaDiferencia(salud_Luz, diferenciasAgua);
-
-            switch (estado)
-            {
-                //Muy seca
-                case -3:
-                    break;
-                // Bastante seca
-                case -2:
-                    break;
-                //Un poco seca
-                case -1:
-                    break;
-                //Te pasas un poco
-                case 1:
-                    break;
-                //Te pasas bastate
-                case 2:
-                    break;
-                //Te pasas mucho
-                case 3:
-                    break;
-
-                default:
-                    break;
-            }
+            if(l == Luz.Penumbra) render.material.SetColor("_Color", colorPodrido);
+            else render.material.SetColor("_Color", colorSeco);
         }
     }
 
     //Te devuelve en un número el estado de la planta en el atributo que quieras
     private int calculaDiferencia(int diferencia, int[] diferencias)
     {
-
         if (diferencia >= diferencias[2])
         {
             return 3;
@@ -497,19 +496,19 @@ public class Planta : MonoBehaviour
             return 1;
             //Se pasa un poquito
         }//La diferencia es negativa
-        else if (diferencia < -diferencias[2])
+        else if (diferencia <= -diferencias[2])
         {
-            return -1;
+            return -3;
             //Mega seca
         }
-        else if (diferencia < -diferencias[1])
+        else if (diferencia <= -diferencias[1])
         {
             return -2;
             //Bastante seca
         }
         else //No quedan más opciones
         {
-            return -3;
+            return -1;
             //Un poquito seca
         }
     }
